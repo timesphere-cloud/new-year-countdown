@@ -192,7 +192,7 @@ setInterval(updateCountdown, 1000);
     el.innerHTML = '<div class="zone">UTC'+sign+'</div><small>Przejdź: /utc_' + i + '.html</small>';
     // Navigate when clicked. Use pathname with leading slash - example: /utc_10.html
     el.addEventListener('click', ()=> {
-      window.location.href = '/utc_' + i + '.html';
+      window.location.href = '/new-year-countdown/utc_' + i + '.html';
     });
     grid.appendChild(el);
   }
