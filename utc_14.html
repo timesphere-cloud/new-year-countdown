@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>New Year Countdown — UTC</title>
+  <title>New Year Countdown — UTC+14</title>
+  link rel="icon" href="https://timesphere-cloud.github.io/new-year-countdown/icon.png" type="image/png">
+  
 
   <!-- Słodka czcionka -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
@@ -190,7 +192,7 @@ setInterval(updateCountdown, 1000);
     el.innerHTML = '<div class="zone">UTC'+sign+'</div><small>Przejdź: /utc_' + i + '.html</small>';
     // Navigate when clicked. Use pathname with leading slash - example: /utc_10.html
     el.addEventListener('click', ()=> {
-      window.location.href = '/utc_' + i + '.html';
+      window.location.href = '/new-year-countdown/utc_' + i + '.html';
     });
     grid.appendChild(el);
   }
