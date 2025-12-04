@@ -78,49 +78,49 @@
 
   <header id="hero">
     <h1 class="title">New Year Countdown</h1>
-    <p class="subtitle" id="tzLabel">Domyślnie: <strong id="tzText">UTC+0</strong></p>
+    <p class="subtitle" Current: <strong id="tzText">UTC+0</strong></p>
 
     <div class="countdown" id="countdown">
       <div class="unit">
         <div class="num" id="days">0</div>
-        <div class="label">dni</div>
+        <div class="label">days</div>
       </div>
       <div class="unit">
         <div class="num" id="hours">00</div>
-        <div class="label">godzin</div>
+        <div class="label">hours</div>
       </div>
       <div class="unit">
         <div class="num" id="mins">00</div>
-        <div class="label">minut</div>
+        <div class="label">minutes</div>
       </div>
       <div class="unit">
         <div class="num" id="secs">00</div>
-        <div class="label">sekund</div>
+        <div class="label">seconds</div>
       </div>
     </div>
 
     <div class="down-hint" id="scrollBtn" title="Przewiń w dół, aby wybrać strefę">
       <div class="arrow">⇩</div>
       <div style="text-align:left">
-        <div style="font-weight:600">Wybierz strefę</div>
-        <small style="color:var(--muted)">Przewiń w dół lub kliknij</small>
+        <div style="font-weight:600">Other timezones</div>
+        <small style="color:var(--muted)">Scroll to select other timezones!</small>
       </div>
     </div>
   </header>
 
   <section id="zones">
     <div class="zones-wrap">
-      <div class="zones-title">Wybierz swoją strefę</div>
-      <div class="zones-sub">Kliknij strefę, aby przejść do strony <code>/utc_XX.html</code> (np. <code>/utc_10.html</code>)</div>
+      <div class="zones-title">Select your timezone</div>
+      <div class="zones-sub">Click timezone, to redirect to <code>/utc_**</code> (Preview <code>/utc_10</code>)</div>
 
       <div class="grid" id="tzGrid">
         <!-- JS wypełni siatkę stref -12..+14 -->
       </div>
-      <p style="margin-top:18px; color:var(--muted)">Jeśli chcesz inną dokładność (np. UTC+5:30), skopiuj plik i edytuj javascript (offset w godzinach może być ułamkowy).</p>
+      <p style="margin-top:18px; color:var(--muted)">Updates every second!.</p>
     </div>
   </section>
 
-  <footer>Made with ✨ — zapisz plik jako <code>index.html</code>. Kopiuj i zmieniaj nazwę na np. <code>utc_10.html</code> aby mieć oddzielne strony dla stref.</footer>
+  <footer>Made with ✨ — © <code>2025</code>. TimeSphere Cloud.</footer>
 
 <script>
 /* ====== Odczyt offsetu z nazwy pliku ======
