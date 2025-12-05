@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>New Year Countdown — UTC-4</title>
+  <link rel="icon" href="https://timesphere-cloud.github.io/new-year-countdown/icon.png" type="image/png">
+  
+
+  <!-- Słodka czcionka -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1: #0b1020;
+      --accent: #ffd166;
+      --muted: rgba(255,255,255,0.75);
+    }
+    html,body{height:100%;margin:0;font-family:Poppins,system-ui,Arial;color:#fff;background:var(--bg1);overflow-x:hidden}
+    /* canvas covers background */
+    canvas#fw { position:fixed; inset:0; z-index:0; display:block; }
+    /* overlay for gradient */
+    .overlay{ position:fixed; inset:0; background: linear-gradient(180deg, rgba(3,7,18,0.4), rgba(0,0,0,0.5)); z-index:0; pointer-events:none; }
+    header{
+      position:relative; z-index:2; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      flex-direction:column; text-align:center; padding:40px 20px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.0), rgba(0,0,0,0.0));
+    }
+    .title{
+      font-family: "Pacifico", cursive;
+      font-size: clamp(34px, 8vw, 88px);
+      letter-spacing: 0.02em;
+      color: white;
+      text-shadow: 0 6px 30px rgba(0,0,0,0.6);
+      margin:0 0 8px 0;
+    }
+    .subtitle{ color:var(--muted); font-size:clamp(14px,2.3vw,22px); margin:0 0 24px 0; }
+    .countdown{
+      display:flex; gap:16px; align-items:center; justify-content:center; flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .unit{
+      background: rgba(255,255,255,0.08);
+      border-radius:12px; padding:16px 18px; min-width:86px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+    .num{ font-size:28px; font-weight:700; color:var(--accent); font-family:Poppins; }
+    .label{ font-size:12px; color:var(--muted); margin-top:6px; text-transform:uppercase; letter-spacing:0.08em; }
+    .down-hint{ margin-top:28px; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:12px; }
+    .arrow{
+      width:40px;height:40px;border-radius:999px;border:1px solid rgba(255,255,255,0.12); display:flex;align-items:center;justify-content:center;
+      backdrop-filter: blur(4px);
+    }
+    /* timezone section */
+    #zones{ position:relative; z-index:2; background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.4)); padding:80px 18px; color: #fff; }
+    .zones-wrap{ max-width:1100px; margin:0 auto; text-align:center; }
+    .zones-title{ font-size:28px; font-family:Pacifico; margin-bottom:6px; }
+    .zones-sub{ color:var(--muted); margin-bottom:22px; }
+    .grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap:12px; }
+    .tz{
+      background: rgba(255,255,255,0.04); padding:12px; border-radius:12px; cursor:pointer;
+      transition: transform .18s ease, box-shadow .18s ease; user-select:none;
+    }
+    .tz:hover{ transform:translateY(-6px); box-shadow: 0 14px 40px rgba(0,0,0,0.6); }
+    .tz .zone{ font-weight:600; font-size:16px; }
+    .tz small{ color:var(--muted); display:block; margin-top:6px; font-size:12px; }
+    footer{ text-align:center; padding:26px; color:var(--muted); font-size:13px; z-index:2; position:relative; }
+    /* small responsive tweaks */
+    @media (max-width:520px){
+      .unit{ min-width:70px; padding:12px; }
+      .num{ font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- fireworks canvas -->
+  <canvas id="fw"></canvas>
+  <div class="overlay"></div>
+
+  <header id="hero">
+    <h1 class="title">New Year Countdown</h1>
+    <p class="subtitle" Current: <strong id="tzText">UTC+14</strong></p>
+
+    <div class="countdown" id="countdown">
+      <div class="unit">
+        <div class="num" id="days">0</div>
+        <div class="label">days</div>
+      </div>
+      <div class="unit">
+        <div class="num" id="hours">00</div>
+        <div class="label">hours</div>
+      </div>
+      <div class="unit">
+        <div class="num" id="mins">00</div>
+        <div class="label">minutes</div>
+      </div>
+      <div class="unit">
+        <div class="num" id="secs">00</div>
+        <div class="label">seconds</div>
+      </div>
+    </div>
+
+    <div class="down-hint" id="scrollBtn" title="Przewiń w dół, aby wybrać strefę">
+      <div class="arrow">⇩</div>
+      <div style="text-align:left">
+        <div style="font-weight:600">Other timezones</div>
+        <small style="color:var(--muted)">Scroll to select other timezones!</small>
+      </div>
+    </div>
+  </header>
+
+  <section id="zones">
+    <div class="zones-wrap">
+      <div class="zones-title">Select your timezone</div>
+      <div class="zones-sub">Click timezone, to redirect to <code>/utc_**</code> (Preview <code>/utc_10</code>)</div>
+
+      <div class="grid" id="tzGrid">
+        <!-- JS wypełni siatkę stref -12..+14 -->
+      </div>
+      <p style="margin-top:18px; color:var(--muted)">Updates every second!.</p>
+    </div>
+  </section>
+
+  <footer>Made with ✨ — © <code>2025</code>. TimeSphere Cloud.</footer>
+
+<script>
+/* ====== Odczyt offsetu z nazwy pliku ======
+   - index (domyślnie) => offset = 0
+   - utc_10.html => offset = 10
+   - utc_-5.html => offset = -5
+*/
+function getOffsetFromPath(){
+  const p = window.location.pathname.split('/').pop() || 'index.html';
+  const match = p.match(/^utc_(-?\d+(?:\.\d+)?)\.html$/i);
+  if(match) return Number(match[1]);
+  // if path is "/" or "index.html" -> default 0
+  return 0;
+}
+const offsetHours = getOffsetFromPath();
+document.getElementById('tzText').textContent = (offsetHours >= 0 ? 'UTC+'+offsetHours : 'UTC'+offsetHours);
+
+/* ====== Countdown logic ======
+   Target UTC time = Date.UTC(nextYear, 0, 1) - offsetHours * 3600000
+   That way "00:00 local" in zone = that UTC moment.
+*/
+function getTargetUTC(offsetH){
+  const now = new Date();
+  const year = now.getUTCFullYear() + (now.getUTCMonth() === 11 && now.getUTCDate() > 25 ? 1 : 1); // always next year
+  // simpler: always next calendar year:
+  const nextYear = now.getUTCFullYear() + 1;
+  return Date.UTC(nextYear, 0, 1) - offsetH * 3600000;
+}
+let targetUTC = getTargetUTC(offsetHours);
+
+function updateCountdown(){
+  const now = Date.now();
+  let diff = targetUTC - now;
+  if(diff <= 0){
+    // reached! show zeros (could add celebration)
+    document.getElementById('days').textContent = '0';
+    document.getElementById('hours').textContent = '00';
+    document.getElementById('mins').textContent = '00';
+    document.getElementById('secs').textContent = '00';
+    return;
+  }
+  const d = Math.floor(diff / (1000*60*60*24));
+  diff -= d * 1000*60*60*24;
+  const h = Math.floor(diff / (1000*60*60));
+  diff -= h * 1000*60*60;
+  const m = Math.floor(diff / (1000*60));
+  diff -= m * 1000*60;
+  const s = Math.floor(diff / 1000);
+
+  document.getElementById('days').textContent = d;
+  document.getElementById('hours').textContent = String(h).padStart(2,'0');
+  document.getElementById('mins').textContent = String(m).padStart(2,'0');
+  document.getElementById('secs').textContent = String(s).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ====== Fill timezone grid ====== */
+(function fillZones(){
+  const grid = document.getElementById('tzGrid');
+  // Common UTC offsets from -12 to +14 (covers world)
+  const min = -12, max = 14;
+  for(let i=min;i<=max;i++){
+    const el = document.createElement('div');
+    el.className = 'tz';
+    const sign = i >= 0 ? '+'+i : String(i);
+    el.innerHTML = '<div class="zone">UTC'+sign+'</div><small>Przejdź: /utc_' + i + '.html</small>';
+    // Navigate when clicked. Use pathname with leading slash - example: /utc_10.html
+    el.addEventListener('click', ()=> {
+      window.location.href = '/new-year-countdown/utc_' + i + '.html';
+    });
+    grid.appendChild(el);
+  }
+})();
+
+/* ====== Smooth scroll on arrow ====== */
+document.getElementById('scrollBtn').addEventListener('click', ()=> {
+  document.getElementById('zones').scrollIntoView({behavior:'smooth'});
+});
+
+/* ====== Fireworks canvas (lightweight) ====== */
+/* Small fireworks engine adapted to be short and permissive */
+(function fireworks(){
+  const canvas = document.getElementById('fw');
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width = innerWidth;
+  let h = canvas.height = innerHeight;
+  window.addEventListener('resize', ()=> { w = canvas.width = innerWidth; h = canvas.height = innerHeight; });
+
+  const rockets = [];
+  const particles = [];
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+
+  function Rocket(){
+    this.x = rand(w*0.2,w*0.8);
+    this.y = h + 10;
+    this.vx = rand(-1.2,1.2);
+    this.vy = rand(-9,-12);
+    this.size = 3;
+    this.color = `hsl(${Math.floor(rand(0,360))} 100% 60%)`;
+    this.exploded = false;
+    this.update = function(){
+      this.vy += 0.18; // gravity
+      this.x += this.vx;
+      this.y += this.vy;
+      if(this.vy >= -2 || Math.random() < 0.01){ // explode
+        this.explode();
+        this.exploded = true;
+      }
+    };
+    this.draw = function(){
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+      ctx.fill();
+    };
+    this.explode = function(){
+      const count = Math.floor(rand(25,70));
+      for(let i=0;i<count;i++){
+        particles.push(new Particle(this.x, this.y, this.color));
+      }
+    };
+  }
+
+  function Particle(x,y,color){
+    this.x = x; this.y = y;
+    const speed = rand(1,6);
+    const angle = rand(0, Math.PI*2);
+    this.vx = Math.cos(angle)*speed;
+    this.vy = Math.sin(angle)*speed;
+    this.life = rand(40,120);
+    this.size = rand(1,2.8);
+    this.color = color;
+    this.update = function(){
+      this.vy += 0.05; // gravity
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vx *= 0.99;
+      this.vy *= 0.99;
+      this.life -= 1;
+    };
+    this.draw = function(){
+      const alpha = Math.max(0, this.life/120);
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = alpha;
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    };
+  }
+
+  function loop(){
+    ctx.fillStyle = 'rgba(6,10,20,0.32)';
+    ctx.fillRect(0,0,w,h);
+    // maybe spawn rockets randomly
+    if(Math.random() < 0.08) rockets.push(new Rocket());
+    // update rockets
+    for(let i=rockets.length-1;i>=0;i--){
+      rockets[i].update();
+      rockets[i].draw();
+      if(rockets[i].exploded) rockets.splice(i,1);
+    }
+    // update particles
+    for(let i=particles.length-1;i>=0;i--){
+      particles[i].update();
+      particles[i].draw();
+      if(particles[i].life <= 0) particles.splice(i,1);
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
