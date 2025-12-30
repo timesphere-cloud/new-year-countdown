@@ -71,6 +71,7 @@
       .unit{ min-width:70px; padding:12px; }
       .num{ font-size:20px; }
     }
+    #days { display:none }
   </style>
 </head>
 <body>
@@ -83,6 +84,9 @@
     <p class="subtitle" Current: <strong id="tzText">UTC+14</strong></p>
 
     <div class="countdown" id="countdown">
+      <div class="unit">
+        <div class="num" id="days">0</div>
+        <div class="label">days</div>
       </div>
       <div class="unit">
         <div class="num" id="hours">00</div>
@@ -296,4 +300,4 @@ document.getElementById('scrollBtn').addEventListener('click', ()=> {
 })();
 </script>
 </body>
-</html>
+  </html>
