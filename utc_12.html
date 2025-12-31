@@ -71,7 +71,10 @@
       .unit{ min-width:70px; padding:12px; }
       .num{ font-size:20px; }
     }
-    #days { display:none }
+        #days { display:none }
+    #hours { display:none }
+    #mins { display:none }
+    #secs { display:none }
   </style>
 </head>
 <body>
@@ -80,28 +83,28 @@
   <div class="overlay"></div>
 
   <header id="hero">
-    <h1 class="title">New Year Countdown</h1>
+    <h1 class="title">Happy New Year 2026!</h1>
     <p class="subtitle" Current: <strong id="tzText">UTC+14</strong></p>
 
     <div class="countdown" id="countdown">
-      <div class="unit">
+            <div class="unit">
         <div class="num" id="days">0</div>
+        <div class="label"></div>
+            </div>
+      <div class="unit">
+        <div class="num" id="hours">00</div>
         <div class="label"></div>
       </div>
       <div class="unit">
-        <div class="num" id="hours">00</div>
-        <div class="label">hours</div>
-      </div>
-      <div class="unit">
         <div class="num" id="mins">00</div>
-        <div class="label">minutes</div>
+        <div class="label"></div>
       </div>
       <div class="unit">
         <div class="num" id="secs">00</div>
-        <div class="label">seconds</div>
+        <div class="label"></div>
       </div>
     </div>
-
+    
     <div class="down-hint" id="scrollBtn" title="Przewiń w dół, aby wybrać strefę">
       <div class="arrow">⇩</div>
       <div style="text-align:left">
