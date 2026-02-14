@@ -4,8 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>New Year Countdown — UTC+6</title>
-  <link rel="icon" href="https://timesphere-cloud.github.io/new-year-countdown/icon.png" type="image/png">
-  
 
   <!-- Słodka czcionka -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
@@ -13,7 +11,7 @@
   <style>
     :root{
       --bg1: #0b1020;
-      --accent: #ffd166;
+      --accent: #c77dff;
       --muted: rgba(255,255,255,0.75);
     }
     html,body{height:100%;margin:0;font-family:Poppins,system-ui,Arial;color:#fff;background:var(--bg1);overflow-x:hidden}
@@ -71,10 +69,6 @@
       .unit{ min-width:70px; padding:12px; }
       .num{ font-size:20px; }
     }
-    #days { display:none }
-    #hours { display:none }
-    #mins { display:none }
-    #secs { display:none }
   </style>
 </head>
 <body>
@@ -83,31 +77,30 @@
   <div class="overlay"></div>
 
   <header id="hero">
-    <h1 class="title">Happy New Year 2026!</h1>
+    <h1 class="title">New Year Countdown</h1>
     <p class="subtitle" Current: <strong id="tzText">UTC+14</strong></p>
 
     <div class="countdown" id="countdown">
-            <div class="unit">
+      <div class="unit">
         <div class="num" id="days">0</div>
-        <div class="label"></div>
-            </div>
+        <div class="label">days</div>
+      </div>
       <div class="unit">
         <div class="num" id="hours">00</div>
-        <div class="label"></div>
+        <div class="label">hours</div>
       </div>
       <div class="unit">
         <div class="num" id="mins">00</div>
-        <div class="label"></div>
+        <div class="label">minutes</div>
       </div>
       <div class="unit">
         <div class="num" id="secs">00</div>
-        <div class="label"></div>
+        <div class="label">seconds</div>
       </div>
     </div>
 
-
     <div class="down-hint" id="scrollBtn" title="Przewiń w dół, aby wybrać strefę">
-      <div class="arrow">⇩</div>
+      <div class="arrow">▼</div>
       <div style="text-align:left">
         <div style="font-weight:600">Other timezones</div>
         <small style="color:var(--muted)">Scroll to select other timezones!</small>
@@ -127,7 +120,7 @@
     </div>
   </section>
 
-  <footer>Made with ✨ — © <code>2025</code>. TimeSphere Cloud.</footer>
+  <footer>Made with ✨ — © <code>2026</code>. TimeSphere Cloud.</footer>
 
 <script>
 /* ====== Odczyt offsetu z nazwy pliku ======
@@ -185,22 +178,60 @@ function updateCountdown(){
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-/* ====== Fill timezone grid ====== */
+/* ====== Ulepszony odczyt offsetu z nazwy pliku
+   Obsługuje: index.html (-> 0), utc_5.5.html, utc_5_5.html, utc_-3.75.html itd. */
+function getOffsetFromPath(){
+  const p = window.location.pathname.split('/').pop() || 'index.html';
+  // dopuszczamy postać z kropką lub z podkreśleniem dla ułamków: utc_5.5.html lub utc_5_5.html
+  const match = p.match(/^utc_(-?\d+(?:[._]\d+)?)\.html$/i);
+  if(match){
+    // zamień podkreślenie na kropkę jeśli występuje
+    const raw = match[1].replace('_','.');
+    const val = Number(raw);
+    if(!Number.isNaN(val)) return val;
+  }
+  return 0;
+}
+
+/* ====== Fill timezone grid z niestandardowymi strefami (ułamki) ====== */
 (function fillZones(){
   const grid = document.getElementById('tzGrid');
-  // Common UTC offsets from -12 to +14 (covers world)
-  const min = -12, max = 14;
-  for(let i=min;i<=max;i++){
+
+  // Lista stref — możesz dopisać/usuwać wartości; zawiera popularne ułamkowe offsety
+  const offsets = [
+    -12, -11, -10, -9.5, -9, -8, -7, -6, -5, -4, -3.5, -3, -2, -1,
+     0, 1, 2, 3, 3.5, 4, 4.5, 5, 5.5, 5.75, 6, 6.5, 7, 8, 8.75,
+     9, 9.5, 10, 10.5, 11, 12, 13, 13.75, 14
+  ];
+
+  // Pomocnik: format 5.5 -> "UTC+5:30", 13.75 -> "UTC+13:45", 0 -> "UTC+0"
+  function formatOffsetLabel(off){
+    const sign = off >= 0 ? '+' : '-';
+    const absv = Math.abs(off);
+    const hours = Math.floor(absv);
+    const minutes = Math.round((absv - hours) * 60);
+    const mm = minutes === 0 ? '' : ':' + String(minutes).padStart(2,'0');
+    return 'UTC' + sign + hours + mm;
+  }
+
+  // Tworzymy kafelki
+  offsets.forEach(off => {
     const el = document.createElement('div');
     el.className = 'tz';
-    const sign = i >= 0 ? '+'+i : String(i);
-    el.innerHTML = '<div class="zone">UTC'+sign+'</div><small>Przejdź: /utc_' + i + '.html</small>';
-    // Navigate when clicked. Use pathname with leading slash - example: /utc_10.html
+
+    // label (czytelna godzina) i link do pliku; pliki będą w formacie /utc_5.5.html
+    const human = formatOffsetLabel(off);
+    // do nazwy pliku konwertujemy liczbę na zapis bez nieistotnych zer (np. 5 -> "5", 5.5 -> "5.5")
+    const offStr = Number.isInteger(off) ? String(off) : String(off);
+    const url = '/utc_' + offStr + '.html';
+
+    el.innerHTML = `<div class="zone">${human}</div><small>Przejdź: ${url}</small>`;
     el.addEventListener('click', ()=> {
-      window.location.href = '/new-year-countdown/utc_' + i + '.html';
+      window.location.href = url;
     });
     grid.appendChild(el);
-  }
+  });
+
 })();
 
 /* ====== Smooth scroll on arrow ====== */
